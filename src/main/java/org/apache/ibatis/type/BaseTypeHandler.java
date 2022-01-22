@@ -24,6 +24,7 @@ import org.apache.ibatis.executor.result.ResultMapException;
 import org.apache.ibatis.session.Configuration;
 
 /**
+ * TypeHandler 抽象实现
  * @author Clinton Begin
  * @author Simone Tripodi
  */

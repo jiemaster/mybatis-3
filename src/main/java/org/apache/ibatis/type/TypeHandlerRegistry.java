@@ -49,16 +49,36 @@ import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.reflection.Jdk;
 
 /**
+ * Mybatis 初始化时，实例化全部 TypeHandler 对象之后，
+ * 立刻调用 TypeHandlerRegistry.register() 方法， 初始化成员变量，维护 TypeHandler 和 javaType、JdbcType 之间对应关系
+ *
  * @author Clinton Begin
  * @author Kazuki Shimizu
  */
 public final class TypeHandlerRegistry {
 
+  /**
+   * JdbcType 与 TypeHandler 之间的对应关系
+   */
   private final Map<JdbcType, TypeHandler<?>> JDBC_TYPE_HANDLER_MAP = new EnumMap<JdbcType, TypeHandler<?>>(JdbcType.class);
+
+  /**
+   * 第一层 key 为所需要转化的 Java 类型，
+   *  第二层 key 为转化目标的 JdbcType 类型
+   *    Value 为最终转化时所需要的 TypeHandler 对象
+   * Java 类型中的 String 可能转化成数据库中的 varchar， char， text 等多种类型，存在一对多对应关系
+   */
   private final Map<Type, Map<JdbcType, TypeHandler<?>>> TYPE_HANDLER_MAP = new ConcurrentHashMap<Type, Map<JdbcType, TypeHandler<?>>>();
   private final TypeHandler<Object> UNKNOWN_TYPE_HANDLER = new UnknownTypeHandler(this);
+
+  /**
+   * 记录全部 TypeHandler 类型以及对应的 TypeHandler 实例对象
+   */
   private final Map<Class<?>, TypeHandler<?>> ALL_TYPE_HANDLERS_MAP = new HashMap<Class<?>, TypeHandler<?>>();
 
+  /**
+   * 空 TypeHandler 标识
+   */
   private static final Map<JdbcType, TypeHandler<?>> NULL_TYPE_HANDLER_MAP = Collections.emptyMap();
 
   private Class<? extends TypeHandler> defaultEnumTypeHandler = EnumTypeHandler.class;
