@@ -46,15 +46,38 @@ import org.apache.ibatis.reflection.property.PropertyNamer;
  */
 public class Reflector {
 
+  /**
+   * 封装 clazz 对象
+   */
   private final Class<?> type;
+  /**
+   * 可读属性集合
+   */
   private final String[] readablePropertyNames;
+  /**
+   * 可写属性集合
+   */
   private final String[] writeablePropertyNames;
+
   private final Map<String, Invoker> setMethods = new HashMap<String, Invoker>();
+  /**
+   * 可读属性对应的 get 方法集合，key 为属性名称， value 为 Invoke 对象（GetFieldInvoker, SetFieldInvoker, MethodInvoker)
+   */
   private final Map<String, Invoker> getMethods = new HashMap<String, Invoker>();
   private final Map<String, Class<?>> setTypes = new HashMap<String, Class<?>>();
+  /**
+   * 可读属性对应的 get 方法返回值， key 属性名称， value 是返回类型
+   */
   private final Map<String, Class<?>> getTypes = new HashMap<String, Class<?>>();
+
+  /**
+   * 默认构造器
+   */
   private Constructor<?> defaultConstructor;
 
+  /**
+   * 所有属性名称Map， Key 为全大写属性，value 是属性本身
+   */
   private Map<String, String> caseInsensitivePropertyMap = new HashMap<String, String>();
 
   public Reflector(Class<?> clazz) {

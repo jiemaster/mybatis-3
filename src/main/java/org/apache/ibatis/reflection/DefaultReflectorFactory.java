@@ -12,6 +12,10 @@
  *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
+ *
+ *
+ *
+ *    封装类一层，内部进行缓存，提升了 Reflector 生成效率
  */
 package org.apache.ibatis.reflection;
 

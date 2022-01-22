@@ -27,6 +27,10 @@ import org.apache.ibatis.reflection.invoker.MethodInvoker;
 import org.apache.ibatis.reflection.property.PropertyTokenizer;
 
 /**
+ * 封装 Class 的元信息
+ * 获取类中属性描述信息的功能， 底层依赖 Reflector
+ * findProperty() 实现属性查找的核心方法，依赖 PropertyTokenizer 实现 . 导航查找属性
+ *
  * @author Clinton Begin
  */
 public class MetaClass {

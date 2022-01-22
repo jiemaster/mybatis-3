@@ -19,6 +19,9 @@ import java.util.List;
 import java.util.Properties;
 
 /**
+ *
+ * 反射工厂, 实现类参考 DefaultObjectFactory
+ *
  * MyBatis uses an ObjectFactory to create all needed new Objects.
  * 
  * @author Clinton Begin

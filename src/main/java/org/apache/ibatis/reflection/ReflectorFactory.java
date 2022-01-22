@@ -12,9 +12,18 @@
  *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
+ *
  */
 package org.apache.ibatis.reflection;
 
+/**
+ * Comments by wendaojie
+ *
+ * 设计目的： 提升 Reflector 初始化速度， 对 Reflector 进行类缓存
+ * DefaultReflectorFactory 是默认实现，内部维护一个 ConcurrentHashMap<Class<?>,
+ * Reflector> 缓存其创建的所有 Reflector 对象
+ *
+ */
 public interface ReflectorFactory {
 
   boolean isClassCacheEnabled();

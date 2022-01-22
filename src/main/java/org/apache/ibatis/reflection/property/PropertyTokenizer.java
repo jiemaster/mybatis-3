@@ -18,6 +18,9 @@ package org.apache.ibatis.reflection.property;
 import java.util.Iterator;
 
 /**
+ *
+ * 工具类负责解析由 . 和 [] 构成的表达式
+ * 实现 Iterator 接口，具有嵌套处理多层表达式的能力
  * @author Clinton Begin
  */
 public class PropertyTokenizer implements Iterator<PropertyTokenizer> {

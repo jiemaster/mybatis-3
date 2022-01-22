@@ -20,6 +20,8 @@ import java.util.Locale;
 import org.apache.ibatis.reflection.ReflectionException;
 
 /**
+ * 转化方法名到属性名，以及检测方法是否为 getter 或者 setter 方法
+ *
  * @author Clinton Begin
  */
 public final class PropertyNamer {

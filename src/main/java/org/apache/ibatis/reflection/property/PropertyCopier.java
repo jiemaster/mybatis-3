@@ -18,6 +18,9 @@ package org.apache.ibatis.reflection.property;
 import java.lang.reflect.Field;
 
 /**
+ * 属性拷贝工具类， 提供与 Spring 中 BeanUtils.copyProperties() 类似功能
+ * 实现两个对象之间属性拷贝
+ *
  * @author Clinton Begin
  */
 public final class PropertyCopier {
