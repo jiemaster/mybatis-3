@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
+ * MapperRegistry 和 MapperProxyFactory 关系是一对多
  * @author Clinton Begin
  * @author Eduardo Macarron
  * @author Lasse Voss
