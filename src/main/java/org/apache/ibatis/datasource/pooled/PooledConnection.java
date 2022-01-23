@@ -24,6 +24,7 @@ import java.sql.SQLException;
 import org.apache.ibatis.reflection.ExceptionUtil;
 
 /**
+ * 本质上是一个 JDK 动态代理的 InvocationHandler
  * @author Clinton Begin
  */
 class PooledConnection implements InvocationHandler {
@@ -232,6 +233,7 @@ class PooledConnection implements InvocationHandler {
   @Override
   public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
     String methodName = method.getName();
+    // 拦截 close 方法，放回连接池
     if (CLOSE.hashCode() == methodName.hashCode() && CLOSE.equals(methodName)) {
       dataSource.pushConnection(this);
       return null;

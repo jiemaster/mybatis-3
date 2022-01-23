@@ -39,6 +39,7 @@ public class UnpooledDataSource implements DataSource {
   
   private ClassLoader driverClassLoader;
   private Properties driverProperties;
+  // 线程安全，记录已经注册到 dataSource 中的 JDBC 驱动
   private static Map<String, Driver> registeredDrivers = new ConcurrentHashMap<String, Driver>();
 
   private String driver;
@@ -197,8 +198,13 @@ public class UnpooledDataSource implements DataSource {
   }
 
   private Connection doGetConnection(Properties properties) throws SQLException {
+    // 初始化驱动
     initializeDriver();
+
+    //创建数据库连接
     Connection connection = DriverManager.getConnection(url, properties);
+
+    //配置数据库连接
     configureConnection(connection);
     return connection;
   }
