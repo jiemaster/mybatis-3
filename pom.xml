@@ -264,6 +264,22 @@
       <version>2.5</version>
       <scope>test</scope>
     </dependency>
+
+
+    <!--  dependencies for demo code  -->
+
+    <!--MySQL JDBC依赖，用来连接数据库-->
+    <dependency>
+     <groupId>mysql</groupId>
+     <artifactId>mysql-connector-java</artifactId>
+     <version>8.0.15</version>
+    </dependency>
+    <!--Guava依赖-->
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <version>19.0</version>
+    </dependency>
   </dependencies>
 
   <build>
@@ -273,6 +289,8 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <configuration>
           <testCompilerArgument>${maven.compiler.testCompilerArgument}</testCompilerArgument>
+            <source>8</source>
+            <target>8</target>
         </configuration>
       </plugin>
       <plugin>
