@@ -110,12 +110,15 @@ public class ParamNameResolver {
    * In addition to the default names, this method also adds the generic names (param1, param2,
    * ...).
    * </p>
+   *
+   * Mapper 接口中的实参与 names 中的记录的参数名称关联
    */
   public Object getNamedParams(Object[] args) {
     final int paramCount = names.size();
     if (args == null || paramCount == 0) {
       return null;
     } else if (!hasParamAnnotation && paramCount == 1) {
+      // 方法参数列表中没有 @Param 注解，且只有一个非特殊参数类型
       return args[names.firstKey()];
     } else {
       final Map<String, Object> param = new ParamMap<Object>();

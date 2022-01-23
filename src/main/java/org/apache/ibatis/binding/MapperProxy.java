@@ -28,7 +28,7 @@ import org.apache.ibatis.reflection.ExceptionUtil;
 import org.apache.ibatis.session.SqlSession;
 
 /**
- * Mapper 动态代理 InvocationHandler
+ * Mapper 动态代理 InvocationHandler，把 sqlSession 交给 MapperMethod 完成对应 sql 操作
  * @author Clinton Begin
  * @author Eduardo Macarron
  */

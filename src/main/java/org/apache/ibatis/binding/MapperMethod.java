@@ -36,6 +36,10 @@ import java.lang.reflect.Type;
 import java.util.*;
 
 /**
+ *
+ * 此处只有做 input 的准备和对 output 处理，sql 的执行部分则是委托给 sqlSession 进行处理
+ * 此处之后就与 Mybatis Mapper.xml 没有任何关系了
+ *
  * @author Clinton Begin
  * @author Eduardo Macarron
  * @author Lasse Voss
@@ -52,9 +56,12 @@ public class MapperMethod {
 
   public Object execute(SqlSession sqlSession, Object[] args) {
     Object result;
+    // 依据 sql 类型做不同的 case
     switch (command.getType()) {
       case INSERT: {
-      Object param = method.convertArgsToSqlCommandParam(args);
+        // 通过调用 ParamNameResolver.getNamedParams() 方法将方法的实参和参数名称关联起来，是一个 Map
+        Object param = method.convertArgsToSqlCommandParam(args);
+        // 通过 sqlSession.insert() 执行 insert 方法，在 rowCountResult() 对返回结果进行转化
         result = rowCountResult(sqlSession.insert(command.getName(), param));
         break;
       }
@@ -70,9 +77,11 @@ public class MapperMethod {
       }
       case SELECT:
         if (method.returnsVoid() && method.hasResultHandler()) {
+          // 如果返回值为 void，并且包含 ResultHandler类型实参，则查询结果将由 ResultHandler 对象进行处理
           executeWithResultHandler(sqlSession, args);
           result = null;
         } else if (method.returnsMany()) {
+          // 数组或者集合
           result = executeForMany(sqlSession, args);
         } else if (method.returnsMap()) {
           result = executeForMap(sqlSession, args);
@@ -96,6 +105,15 @@ public class MapperMethod {
     return result;
   }
 
+  /**
+   * 对于 Insert、Update、Delete 三类 SQL 返回值都是由该方法处理
+   * Mapper 的返回值为 void，忽略 SQL 语句返回的 int 返回值，直接返回 null
+   * Mapper 的返回值为 int or Integer， 则将 SQL 语句返回的 int 返回值直接返回
+   * Mapper 的返回值为 long or Long， 则将 SQL 语句返回的 int 转化成 long 之后进行返回
+   * Mapper 的返回值为 boolean or Boolean， 则将 SQL 语句返回的 int 值与 0 比较，然后返回改结果
+   * @param rowCount
+   * @return
+   */
   private Object rowCountResult(int rowCount) {
     final Object result;
     if (method.returnsVoid()) {
@@ -129,6 +147,13 @@ public class MapperMethod {
     }
   }
 
+  /**
+   * 委托给 sqlSession.selectList() 方法进行查询，并将返回结果转化成数组或者集合
+   * @param sqlSession
+   * @param args
+   * @param <E>
+   * @return
+   */
   private <E> Object executeForMany(SqlSession sqlSession, Object[] args) {
     List<E> result;
     Object param = method.convertArgsToSqlCommandParam(args);
@@ -243,6 +268,16 @@ public class MapperMethod {
       return type;
     }
 
+    /**
+     * 根据 sql 的唯一标识从 Configuration 中查找关联的 MappedStatement 对象
+     * 如果没找到就顺着 Mapper 接口的继承树上找
+     * ？？ 找出来 MappedStatement 指是设置了 name 和 type
+     * @param mapperInterface
+     * @param methodName
+     * @param declaringClass
+     * @param configuration
+     * @return MappedStatement
+     */
     private MappedStatement resolveMappedStatement(Class<?> mapperInterface, String methodName,
         Class<?> declaringClass, Configuration configuration) {
       String statementId = mapperInterface.getName() + "." + methodName;
@@ -264,16 +299,36 @@ public class MapperMethod {
     }
   }
 
+  /**
+   * 维护了 Mapper 接口中方法的相关信息
+   */
   public static class MethodSignature {
 
     private final boolean returnsMany;
     private final boolean returnsMap;
     private final boolean returnsVoid;
     private final boolean returnsCursor;
+    /**
+     * 方法返回的具体类型
+     */
     private final Class<?> returnType;
+
+    /**
+     * 如果返回的是 map 集合，则通过 mapKey 记录了作为 key 的列名
+     */
     private final String mapKey;
+    /**
+     * 记录了 Mapper 接口方法参数的列表中 ResultHandler 类型参数的位置
+     */
     private final Integer resultHandlerIndex;
+    /**
+     * 记录了 Mapper 接口方法参数的列表中 rowBounds 参数的位置
+     */
     private final Integer rowBoundsIndex;
+    /**
+     * 用来解析方法参数列表的工具类
+     * 调用 paramNamedResolver.getNamedParams() 得到 实参和 names 之间对应的 map
+     */
     private final ParamNameResolver paramNameResolver;
 
     public MethodSignature(Configuration configuration, Class<?> mapperInterface, Method method) {
