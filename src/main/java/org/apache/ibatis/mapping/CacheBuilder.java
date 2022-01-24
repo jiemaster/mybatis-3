@@ -90,17 +90,23 @@ public class CacheBuilder {
   }
 
   public Cache build() {
+    // 设置默认实现为 PerpetualCache, decorators 集合中默认添加 LruCache
     setDefaultImplementations();
+    // 通过反射实例化 cache 对象
     Cache cache = newBaseCacheInstance(implementation, id);
+
     setCacheProperties(cache);
     // issue #352, do not apply decorators to custom caches
     if (PerpetualCache.class.equals(cache.getClass())) {
       for (Class<? extends Cache> decorator : decorators) {
+        // 使用装饰器进行包装
         cache = newCacheDecoratorInstance(decorator, cache);
         setCacheProperties(cache);
       }
+      // 添加标准装饰器，SerializedCache、ScheduledCache
       cache = setStandardDecorators(cache);
     } else if (!LoggingCache.class.isAssignableFrom(cache.getClass())) {
+      // 如果不是 PerpetualCache, 则添加一个 LoggingCache 装饰器
       cache = new LoggingCache(cache);
     }
     return cache;

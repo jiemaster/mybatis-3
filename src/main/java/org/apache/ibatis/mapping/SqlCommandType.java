@@ -16,6 +16,7 @@
 package org.apache.ibatis.mapping;
 
 /**
+ * 封装了 SQL 类型
  * @author Clinton Begin
  */
 public enum SqlCommandType {

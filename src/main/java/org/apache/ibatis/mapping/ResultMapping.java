@@ -31,19 +31,55 @@ import org.apache.ibatis.type.TypeHandlerRegistry;
 public class ResultMapping {
 
   private Configuration configuration;
+  /**
+   * POJO 实体中的属性名
+   */
   private String property;
+  /**
+   * 数据库表中的列名
+   */
   private String column;
+  /**
+   * POJO 属性字段的 Java 类型
+   */
   private Class<?> javaType;
+  /**
+   * 数据库表中列的 Jdbc 类型
+   */
   private JdbcType jdbcType;
+  /**
+   * 当前标签的 typeHandler, 会覆盖默认的 typeHandler
+   */
   private TypeHandler<?> typeHandler;
+
+  /**
+   * 一个属性关联另外一个 resultMap 标签的 id，一对多关系
+   */
   private String nestedResultMapId;
+
+  /**
+   * 当前标签的 select 属性，一个属性通过引用另外一个 select 标签中定义的 select sql 语句， 由于当前结果集可能查询出多行记录，
+   * N + 1 问题
+   */
   private String nestedQueryId;
+  /**
+   * 非空字段
+   */
   private Set<String> notNullColumns;
+  /**
+   * 列名中的公共前缀
+   */
   private String columnPrefix;
   private List<ResultFlag> flags;
   private List<ResultMapping> composites;
+  /**
+   * 当前标签的 resultSet 属性值
+   */
   private String resultSet;
   private String foreignColumn;
+  /**
+   * 当前标签的 fetType 属性，表示是否延迟加载当前标签对应的列
+   */
   private boolean lazy;
 
   ResultMapping() {
