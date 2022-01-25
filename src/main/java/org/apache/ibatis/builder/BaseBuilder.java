@@ -29,11 +29,26 @@ import org.apache.ibatis.type.TypeHandler;
 import org.apache.ibatis.type.TypeHandlerRegistry;
 
 /**
+ * 提供以下能力
+ * 1、关联 Configuration
+ * 2、解析别名
+ * 3、解析 typeHandler
+ *
  * @author Clinton Begin
  */
 public abstract class BaseBuilder {
+  /**
+   * 全局配置
+   */
   protected final Configuration configuration;
+
+  /**
+   * 别名注册器
+   */
   protected final TypeAliasRegistry typeAliasRegistry;
+  /**
+   * typeHandler 类型转化器注册， eg 枚举类型的自定义转换器
+   */
   protected final TypeHandlerRegistry typeHandlerRegistry;
 
   public BaseBuilder(Configuration configuration) {

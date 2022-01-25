@@ -23,6 +23,7 @@ import org.apache.ibatis.mapping.SqlSource;
 import org.apache.ibatis.session.Configuration;
 
 /**
+ * 封装解析后的 SQL 语句， 只是一个中间状态，有可能包含占位符或者动态 sql 标签，无法直接使用
  * @author Clinton Begin
  */
 public class StaticSqlSource implements SqlSource {

@@ -87,8 +87,15 @@ public class XMLMapperBuilder extends BaseBuilder {
     this.resource = resource;
   }
 
+  /**
+   * 获取 mapper.xml 的接口，并进行注册
+   * 处理解析失败的 resultMap 标签
+   * 处理解析失败的 cache-ref 标签
+   * 处理解析失败的 SQL 标签
+   */
   public void parse() {
     if (!configuration.isResourceLoaded(resource)) {
+      // 真正解析 mapper
       configurationElement(parser.evalNode("/mapper"));
       configuration.addLoadedResource(resource);
       bindMapperForNamespace();
@@ -103,6 +110,16 @@ public class XMLMapperBuilder extends BaseBuilder {
     return sqlFragments.get(refid);
   }
 
+  /**
+   * 解析 mapper 标签中的 namespace 标签，并惊醒边界检查
+   * 解析 cache-ref
+   * 解析 cache
+   * 解析 parameterMap
+   * 解析 resultMap
+   * 解析 sql
+   * 解析 select、insert、update、delete 标签
+   * @param context
+   */
   private void configurationElement(XNode context) {
     try {
       String namespace = context.getStringAttribute("namespace");
@@ -184,6 +201,11 @@ public class XMLMapperBuilder extends BaseBuilder {
     }
   }
 
+  /**
+   * cache-ref 可以让多个 namespace 共享一个 cache
+   * 本质上用一个 hashmap， key 是一个 namespace， value 是另外一个 namespace
+   * @param context
+   */
   private void cacheRefElement(XNode context) {
     if (context != null) {
       configuration.addCacheRef(builderAssistant.getCurrentNamespace(), context.getStringAttribute("namespace"));
@@ -252,14 +274,28 @@ public class XMLMapperBuilder extends BaseBuilder {
     return resultMapElement(resultMapNode, Collections.<ResultMapping> emptyList());
   }
 
+  /**
+   * 1、依次从 type、ofType、resultType、javaType 中获取对应的 java 类型
+   * 2、解析 resultMap 标签下的子标签，每一个标签都会生成一个 ResultMapping 对象，然后添加到 ResultMaps 进行缓存
+   *    包含 <id></id>, <result></result>, <collection></collection>, <association></association>, <discriminator></discriminator>
+   * 3、获取 resultMap 标签的 id 属性，默认会拼接所有父标签的 id, value, property 属性值
+   * 4、获取 resultMap 标签的 extends、autoMapping 等属性
+   * 5、创建 ResultMapResolver 对象，根据解析到的 resultMappings 对象构造 resultMap
+   * @param resultMapNode
+   * @param additionalResultMappings
+   * @return
+   * @throws Exception
+   */
   private ResultMap resultMapElement(XNode resultMapNode, List<ResultMapping> additionalResultMappings) throws Exception {
     ErrorContext.instance().activity("processing " + resultMapNode.getValueBasedIdentifier());
     String id = resultMapNode.getStringAttribute("id",
         resultMapNode.getValueBasedIdentifier());
+    // 1
     String type = resultMapNode.getStringAttribute("type",
         resultMapNode.getStringAttribute("ofType",
             resultMapNode.getStringAttribute("resultType",
                 resultMapNode.getStringAttribute("javaType"))));
+
     String extend = resultMapNode.getStringAttribute("extends");
     Boolean autoMapping = resultMapNode.getBooleanAttribute("autoMapping");
     Class<?> typeClass = resolveClass(type);
@@ -301,6 +337,14 @@ public class XMLMapperBuilder extends BaseBuilder {
     }
   }
 
+  /**
+   * <discriminator> 和 <case> 标签配合使用，根据结果中列的值改变映射行为
+   * @param context
+   * @param resultType
+   * @param resultMappings
+   * @return
+   * @throws Exception
+   */
   private Discriminator processDiscriminatorElement(XNode context, Class<?> resultType, List<ResultMapping> resultMappings) throws Exception {
     String column = context.getStringAttribute("column");
     String javaType = context.getStringAttribute("javaType");

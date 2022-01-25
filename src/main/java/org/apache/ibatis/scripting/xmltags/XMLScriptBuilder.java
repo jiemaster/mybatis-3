@@ -64,6 +64,9 @@ public class XMLScriptBuilder extends BaseBuilder {
   }
 
   public SqlSource parseScriptNode() {
+    /**
+     * 解析设置当前 sql 是否为动态 sql
+     */
     MixedSqlNode rootSqlNode = parseDynamicTags(context);
     SqlSource sqlSource = null;
     if (isDynamic) {
@@ -75,13 +78,16 @@ public class XMLScriptBuilder extends BaseBuilder {
   }
 
   protected MixedSqlNode parseDynamicTags(XNode node) {
+    // 解析后的 SqlNode 集合
     List<SqlNode> contents = new ArrayList<SqlNode>();
     NodeList children = node.getNode().getChildNodes();
+    // 获取 SQL 标签下的所有节点，包含标签节点和文本节点
     for (int i = 0; i < children.getLength(); i++) {
       XNode child = node.newXNode(children.item(i));
       if (child.getNode().getNodeType() == Node.CDATA_SECTION_NODE || child.getNode().getNodeType() == Node.TEXT_NODE) {
         String data = child.getStringBody("");
         TextSqlNode textSqlNode = new TextSqlNode(data);
+        // 解析 SQL 语句，如果含有未解析的 ${} 则为动态 SQL
         if (textSqlNode.isDynamic()) {
           contents.add(textSqlNode);
           isDynamic = true;
@@ -89,7 +95,9 @@ public class XMLScriptBuilder extends BaseBuilder {
           contents.add(new StaticTextSqlNode(data));
         }
       } else if (child.getNode().getNodeType() == Node.ELEMENT_NODE) { // issue #628
+        // 如果解析到了一个子标签，那么一定是动态 SQL
         String nodeName = child.getNode().getNodeName();
+        // 根据 node 获取对应的 NodeHandler 进行解析，保存到 SqlNode.contents 集合中
         NodeHandler handler = nodeHandlerMap.get(nodeName);
         if (handler == null) {
           throw new BuilderException("Unknown element <" + nodeName + "> in SQL statement.");
@@ -98,6 +106,7 @@ public class XMLScriptBuilder extends BaseBuilder {
         isDynamic = true;
       }
     }
+    // 解析后的 sql 被封装成 MixedSqlNode 进行返回
     return new MixedSqlNode(contents);
   }
 
@@ -188,8 +197,11 @@ public class XMLScriptBuilder extends BaseBuilder {
 
     @Override
     public void handleNode(XNode nodeToHandle, List<SqlNode> targetContents) {
+      // 解析 if 标签下的嵌套的动态 SQL
       MixedSqlNode mixedSqlNode = parseDynamicTags(nodeToHandle);
+      // 获取 if 标签上的条件表达式
       String test = nodeToHandle.getStringAttribute("test");
+      // 创建 if 标签表达式并保存下来
       IfSqlNode ifSqlNode = new IfSqlNode(mixedSqlNode, test);
       targetContents.add(ifSqlNode);
     }

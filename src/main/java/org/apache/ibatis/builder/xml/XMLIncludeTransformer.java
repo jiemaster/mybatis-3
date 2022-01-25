@@ -52,6 +52,14 @@ public class XMLIncludeTransformer {
   }
 
   /**
+   * 主要步骤如下
+   * 1、查找 refid 属性指向的 <sql> 标签， 得到其对应的 node 对象
+   * 2、解析 <include> 标签下对应的 <property> 标签，将得到的键值对添加到 variablesContext 集合（Properties 类型）并形成新的 Properties
+   *    对象进行返回，用于替换占位符
+   * 3、递归执行 applyIncludes（），遇到占位符则使用 variablesContext 集合中的键值对进行替换
+   * 4、将 <include> 标签替换成 <sql> 标签中的内容
+   *
+   *
    * Recursively apply includes through all SQL fragments.
    * @param source Include node in DOM tree
    * @param variablesContext Current context for static variables with values
