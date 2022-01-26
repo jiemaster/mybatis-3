@@ -18,6 +18,7 @@ package org.apache.ibatis.scripting.xmltags;
 import java.util.List;
 
 /**
+ * 树枝节点，封装了一个 SqlNode List，apply 一次执行 sqlNode List 中的 apply() 方法
  * @author Clinton Begin
  */
 public class MixedSqlNode implements SqlNode {

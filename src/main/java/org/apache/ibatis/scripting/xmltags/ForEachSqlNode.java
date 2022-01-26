@@ -22,6 +22,12 @@ import org.apache.ibatis.parsing.TokenHandler;
 import org.apache.ibatis.session.Configuration;
 
 /**
+ * 使用 foreach 标签对一个集合惊醒迭代
+ * 迭代过程中，
+ *  使用 index 属性值指定变量作为元素下标（迭代 map 的话就是 key）
+ *  使用 item 属性指定的变量作为集合元素（迭代map 的话就是 value）
+ * 另外可以通过 open & close 指定迭代开始和结束添加对应的字符串，使用 separator 自定义分隔符
+ *
  * @author Clinton Begin
  */
 public class ForEachSqlNode implements SqlNode {
@@ -173,8 +179,16 @@ public class ForEachSqlNode implements SqlNode {
   }
 
 
+  /**
+   * PrefixedContext 是 DynamicContext 的一个装饰器
+   * 记录了一个前缀 separator 值
+   * apply() 方法执行时，会先加一个 prefix 然后再追加 sql 片段
+   */
   private class PrefixedContext extends DynamicContext {
     private final DynamicContext delegate;
+    /**
+     * separator 的值
+     */
     private final String prefix;
     private boolean prefixApplied;
 

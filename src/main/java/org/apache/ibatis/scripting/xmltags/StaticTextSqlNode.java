@@ -16,6 +16,9 @@
 package org.apache.ibatis.scripting.xmltags;
 
 /**
+ * 非动态 sql 片段，维护了一个 text 字段保存 sql
+ * apply() 时直接将 text 内容追加到 DynamicContext.sqlBuilder 末尾
+ *
  * @author Clinton Begin
  */
 public class StaticTextSqlNode implements SqlNode {

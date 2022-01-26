@@ -16,6 +16,7 @@
 package org.apache.ibatis.scripting.xmltags;
 
 /**
+ * if 标签通过指定 test 表达式，当 test 表达式结果为 true 时， if 标签下的 sql 才会被追加到目标 sql 中
  * @author Clinton Begin
  */
 public class IfSqlNode implements SqlNode {
@@ -31,6 +32,7 @@ public class IfSqlNode implements SqlNode {
 
   @Override
   public boolean apply(DynamicContext context) {
+    // test 表达式是否为 true， 底层依赖 OGNL 实现表达式求值
     if (evaluator.evaluateBoolean(test, context.getBindings())) {
       contents.apply(context);
       return true;

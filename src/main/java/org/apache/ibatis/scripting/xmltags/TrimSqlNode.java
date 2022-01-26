@@ -25,14 +25,28 @@ import java.util.StringTokenizer;
 import org.apache.ibatis.session.Configuration;
 
 /**
+ * 对应到 mapper 中的 <trim></trim> 标签
+ *
  * @author Clinton Begin
  */
 public class TrimSqlNode implements SqlNode {
 
   private final SqlNode contents;
+  /**
+   * 属性的前缀
+   */
   private final String prefix;
+  /**
+   * 属性的后缀
+   */
   private final String suffix;
+  /**
+   * 删除多个前缀，用 ｜ 分割
+   */
   private final List<String> prefixesToOverride;
+  /**
+   * 删除多个后缀， 用 ｜ 分割
+   */
   private final List<String> suffixesToOverride;
   private final Configuration configuration;
 
@@ -52,7 +66,9 @@ public class TrimSqlNode implements SqlNode {
   @Override
   public boolean apply(DynamicContext context) {
     FilteredDynamicContext filteredDynamicContext = new FilteredDynamicContext(context);
+    // 执行 apply() 方法，完成动态 sql 片段的解析
     boolean result = contents.apply(filteredDynamicContext);
+    // 调用 filteredDynamicContext.applyAll() 完成前后缀的处理
     filteredDynamicContext.applyAll();
     return result;
   }
@@ -69,6 +85,10 @@ public class TrimSqlNode implements SqlNode {
     return Collections.emptyList();
   }
 
+  /**
+   * FilteredDynamicContext 是 DynamicContext 的一个装饰器
+   * 在 DynamicContext 的基础上额外的完成对前后缀的处理
+   */
   private class FilteredDynamicContext extends DynamicContext {
     private DynamicContext delegate;
     private boolean prefixApplied;
@@ -87,7 +107,9 @@ public class TrimSqlNode implements SqlNode {
       sqlBuffer = new StringBuilder(sqlBuffer.toString().trim());
       String trimmedUppercaseSql = sqlBuffer.toString().toUpperCase(Locale.ENGLISH);
       if (trimmedUppercaseSql.length() > 0) {
+        // 处理前缀
         applyPrefix(sqlBuffer, trimmedUppercaseSql);
+        // 处理后缀
         applySuffix(sqlBuffer, trimmedUppercaseSql);
       }
       delegate.appendSql(sqlBuffer.toString());
@@ -118,6 +140,11 @@ public class TrimSqlNode implements SqlNode {
       return delegate.getSql();
     }
 
+    /**
+     * 遍历前缀的集合，从 SQL 片段的头部逐个尝试删除前缀，之后从 sql 片段的头部插入一个空格，以及 prefix 前缀指定的字符串
+     * @param sql
+     * @param trimmedUppercaseSql
+     */
     private void applyPrefix(StringBuilder sql, String trimmedUppercaseSql) {
       if (!prefixApplied) {
         prefixApplied = true;
@@ -136,6 +163,12 @@ public class TrimSqlNode implements SqlNode {
       }
     }
 
+
+    /**
+     * 遍历后缀的集合，从 SQL 头部尝试逐个删除后缀，以及在 sql 片段的尾部插入一个空格以及 suffix 字段指定的后缀
+     * @param sql
+     * @param trimmedUppercaseSql
+     */
     private void applySuffix(StringBuilder sql, String trimmedUppercaseSql) {
       if (!suffixApplied) {
         suffixApplied = true;

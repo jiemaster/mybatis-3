@@ -23,6 +23,9 @@ import org.apache.ibatis.scripting.ScriptingException;
 import org.apache.ibatis.type.SimpleTypeRegistry;
 
 /**
+ * 封装了包含 ${} 占位符号的 sql 片段
+ * text 字段保存包含 ${} 的 sql 片段
+ * apply() 分局用户给定的实参解析占位符
  * @author Clinton Begin
  */
 public class TextSqlNode implements SqlNode {
@@ -47,7 +50,9 @@ public class TextSqlNode implements SqlNode {
 
   @Override
   public boolean apply(DynamicContext context) {
+    // 创建 GenericTokenParser, 占位符号以 ${ 起始， 以 } 结尾
     GenericTokenParser parser = createParser(new BindingTokenParser(context, injectionFilter));
+    // 将解析后的 sql 追加到 DynamicContext 中进行暂存
     context.appendSql(parser.parse(text));
     return true;
   }
@@ -68,12 +73,14 @@ public class TextSqlNode implements SqlNode {
 
     @Override
     public String handleToken(String content) {
+      // 获取用户提供的实参数据
       Object parameter = context.getBindings().get("_parameter");
-      if (parameter == null) {
+      if (parameter == null) { // 通过 value 占位， 也可以查看 parameter 对象
         context.getBindings().put("value", null);
       } else if (SimpleTypeRegistry.isSimpleType(parameter.getClass())) {
         context.getBindings().put("value", parameter);
       }
+      // 通过 OGNL 解析占位符，解析失败则返回原字符串
       Object value = OgnlCache.getValue(content, context.getBindings());
       String srtValue = (value == null ? "" : String.valueOf(value)); // issue #274 return "" instead of "null"
       checkInjection(srtValue);
